@@ -1,0 +1,5 @@
+tb_logs/
+results/
+grid_world/results/
+grid_world/tabular_cleanup/results/
+*.pyc
