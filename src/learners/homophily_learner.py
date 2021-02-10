@@ -200,15 +200,10 @@ class HomophilyLearner:
         for i in range(len(clusters)):
             which_cluster[clusters[i]] = i
         which_cluster = which_cluster.reshape_as(rewards_t)
-        similarity = (which_cluster.unsqueeze(2) * which_cluster.unsqueeze(3)).unsqueeze(-1)
+        is_idle = clean_num_t + rewards_t
+        idle_agent = (is_idle.unsqueeze(2) * is_idle.unsqueeze(3)).unsqueeze(-1)  # [bs,t-1,n,n,1]
+        similarity = (which_cluster.unsqueeze(2) == which_cluster.unsqueeze(3)).unsqueeze(-1).float() * idle_agent
 
-        # predefined
-        if self.env == 'cleanup':
-            similarity = (clean_num_t.unsqueeze(2) * clean_num_t.unsqueeze(3) + rewards_t.unsqueeze(2) * rewards_t.unsqueeze(3)).unsqueeze(-1) # [bs,t-1,n,n,1]
-        elif self.env == 'harvest':
-            similarity = ( rewards_t.unsqueeze(2) * rewards_t.unsqueeze(3) +  (1 - rewards_t.unsqueeze(2)) * (1 - rewards_t.unsqueeze(3))).unsqueeze(-1)
-        else:
-            similarity = None
 
         q_inc_for_sim = th.softmax(q_inc,dim=-1)
         q_of_i_to_j = q_inc_for_sim[:, :-1].unsqueeze(3).repeat(1, 1, 1, self.n_agents, 1, 1)  # [bs,t-1,n,1,n,a_inc]==>[bs,t-1,n,(n),n,a_inc]
