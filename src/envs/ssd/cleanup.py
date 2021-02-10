@@ -2,7 +2,7 @@ import numpy as np
 import random
 import torch as th
 
-from .constants import CLEANUP_MAP, CLEANUP_EASY_MAP, CLEANUP_MEDIUM_MAP, CLEANUP_FIVE_MAP, CLEANUP_TEN_MAP, CLEANUP_LIO3_MAP, CLEANUP_LIO2_MAP
+from .constants import CLEANUP_N3_MAP, CLEANUP_N5_MAP, CLEANUP_N10_MAP
 from .map_env import MapEnv, ACTIONS
 from .agent import CleanupAgent  # CLEANUP_VIEW_SIZE
 
@@ -26,57 +26,26 @@ appleRespawnProbability = 0.05
 
 class CleanupEnv(MapEnv):
 
-    def __init__(self, ascii_map=CLEANUP_MAP, num_agents=1, render=False, seed=None, episode_limit=100,is_replay=False, view_size=7, map="default", extra_args=None):
+    def __init__(self, ascii_map=CLEANUP_N10_MAP, num_agents=1, render=False, seed=None, episode_limit=100,is_replay=False, view_size=7, map="default", extra_args=None):
 
-        if map=="default":
-            ascii_map=CLEANUP_MAP
-            self.thresholdDepletion = thresholdDepletion
-            self.thresholdRestoration = thresholdRestoration
-            self.wasteSpawnProbability = wasteSpawnProbability
-            self.appleRespawnProbability = appleRespawnProbability
+        if map=="default3":
+            ascii_map = CLEANUP_N3_MAP
+            self.thresholdDepletion = 0.4
+            self.thresholdRestoration = 0.0
+            self.wasteSpawnProbability = 0.5
+            self.appleRespawnProbability = 0.3
         elif map=="default5":
-            ascii_map = CLEANUP_FIVE_MAP
+            ascii_map = CLEANUP_N5_MAP
             self.thresholdDepletion = 0.99
             self.thresholdRestoration = 0.0
             self.wasteSpawnProbability = 0.5
             self.appleRespawnProbability = 0.05
         elif map=="default10":
-            ascii_map = CLEANUP_TEN_MAP
+            ascii_map = CLEANUP_N10_MAP
             self.thresholdDepletion = 0.99
             self.thresholdRestoration = 0.0
             self.wasteSpawnProbability = 0.5
             self.appleRespawnProbability = 0.05
-        elif map=="easy":
-            ascii_map=CLEANUP_EASY_MAP
-            self.thresholdDepletion = 0.6
-            self.thresholdRestoration = 0.0
-            self.wasteSpawnProbability = 0.2
-            self.appleRespawnProbability = 0.6
-        elif map=="medium":
-            ascii_map = CLEANUP_MEDIUM_MAP
-            self.thresholdDepletion = 0.4
-            self.thresholdRestoration = 0.0
-            self.wasteSpawnProbability = 0.5
-            self.appleRespawnProbability = 0.5
-        elif map=="five":
-            ascii_map = CLEANUP_FIVE_MAP
-            self.thresholdDepletion = thresholdDepletion
-            self.thresholdRestoration = thresholdRestoration
-            self.wasteSpawnProbability = wasteSpawnProbability
-            self.appleRespawnProbability = appleRespawnProbability
-        elif map=="lio3":
-            ascii_map = CLEANUP_LIO3_MAP
-            self.thresholdDepletion = 0.4
-            self.thresholdRestoration = 0.0
-            self.wasteSpawnProbability = 0.5
-            self.appleRespawnProbability = 0.3
-        elif map=="lio2":
-            ascii_map = CLEANUP_LIO2_MAP
-            self.thresholdDepletion = 0.6
-            self.thresholdRestoration = 0.0
-            self.wasteSpawnProbability = 0.5
-            self.appleRespawnProbability = 0.5
-
 
         print("map difficulty: {}".format(map))
         for row in ascii_map:
@@ -88,7 +57,7 @@ class CleanupEnv(MapEnv):
         # compute potential waste area
         unique, counts = np.unique(self.base_map, return_counts=True)
         counts_dict = dict(zip(unique, counts))
-        self.potential_waste_area = counts_dict.get('H', 0)# + counts_dict.get('R', 0) # TODOSSD: test
+        self.potential_waste_area = counts_dict.get('H', 0)
         self.current_apple_spawn_prob = self.appleRespawnProbability
         self.current_waste_spawn_prob = self.wasteSpawnProbability
         self.compute_probabilities()
@@ -109,7 +78,7 @@ class CleanupEnv(MapEnv):
                     self.stream_points.append([row, col])
                 if self.base_map[row, col] == 'H':
                     self.waste_start_points.append([row, col])
-                if self.base_map[row, col] == 'H': # or self.base_map[row, col] == 'R': # TODOSSD: test
+                if self.base_map[row, col] == 'H':
                     self.waste_points.append([row, col])
                 if self.base_map[row, col] == 'R':
                     self.river_points.append([row, col])
@@ -136,7 +105,6 @@ class CleanupEnv(MapEnv):
 
     @property
     def observation_space(self):
-        # FIXME(ev) this is an information leak
         agents = list(self.agents.values())
         return agents[0].observation_space
 

@@ -18,11 +18,17 @@ pip install -r requirements.txt
 
 ```bash
 python3 src/main.py 
---config=similarity_role 
+--config=homophily 
 --env-config=cleanup 
 with 
+env_args.map=default10
+env_args.num_agents=10
 use_tensorboard=True 
 ```
+
+for other Cleanup maps, set `env_args.map=default5` and `env_args.num_agents=5` or 
+set `env_args.map=default3` and `env_args.num_agents=3`.
+for Harvest maps, set `--env-config=harvest`.
 
 The config files act as defaults for an algorithm or environment. 
 
@@ -48,9 +54,11 @@ Learnt models can be loaded using the `checkpoint_path` parameter, after which t
 
 ```bash
 python3 src/main.py 
---config=similarity_role 
+--config=homophily 
 --env-config=cleanup 
 with 
+env_args.map=default10
+env_args.num_agents=10
 use_tensorboard=False 
 save_replay=True 
 env_args.is_replay=True 

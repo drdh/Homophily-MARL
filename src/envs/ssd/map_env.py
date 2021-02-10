@@ -204,7 +204,6 @@ class MapEnv(MultiAgentEnv):
         """Construct all the agents for the environment"""
         raise NotImplementedError
 
-    # FIXME(ev) move this to a utils eventually
     def ascii_to_numpy(self, ascii_list):
         """converts a list of strings into a numpy array
 
@@ -331,7 +330,6 @@ class MapEnv(MultiAgentEnv):
         return [agent.get_pos().tolist() for agent in self.agents.values()]
 
     # This method is just used for testing
-    # FIXME(ev) move into the testing class
     @property
     def test_map(self):
         """Gets a version of the environment map where generic
@@ -377,10 +375,6 @@ class MapEnv(MultiAgentEnv):
                 continue
 
             grid[agent.pos[0], agent.pos[1]] = char_id
-
-        # TODOSSD: show beam or not
-        # for beam_pos in self.beam_pos:
-        #     grid[beam_pos[0], beam_pos[1]] = beam_pos[2]
 
         return grid
 
@@ -461,7 +455,6 @@ class MapEnv(MultiAgentEnv):
         # map_with_agents = self.get_map_with_agents()
         map_with_agents = self.get_map_with_agents_beam()
 
-        # TODOSSD: different colors
         agent_no_color = False
         if agent_no_color:
             rgb_arr = self.map_to_colors(map_with_agents,NO_COLOURS)
@@ -506,7 +499,6 @@ class MapEnv(MultiAgentEnv):
         for agent_id, action in agent_actions.items():
             agent = self.agents[agent_id]
             selected_action = ACTIONS[action]
-            # TODO(ev) these two parts of the actions
             if 'MOVE' in action or 'STAY' in action:
                 # rotate the selected action appropriately
                 rot_action = self.rotate_action(selected_action, agent.get_orientation())
@@ -572,7 +564,6 @@ class MapEnv(MultiAgentEnv):
                         conflict_cell_free = True
                         for agent_id in all_agents_id:
                             moves_copy = agent_moves.copy()
-                            # TODO(ev) code duplication, simplify
                             if move.tolist() in self.agent_pos:
                                 # find the agent that is currently at that spot and make sure
                                 # that the move is possible. If it won't be, remove it.
@@ -745,7 +736,6 @@ class MapEnv(MultiAgentEnv):
                 if self.test_if_in_bounds(next_cell) and \
                         self.world_map[next_cell[0], next_cell[1]] != '@':
 
-                    # FIXME(ev) code duplication
                     # agents absorb beams
                     # activate the agents hit function if needed
                     if [next_cell[0], next_cell[1]] in self.agent_pos:
@@ -833,7 +823,6 @@ class MapEnv(MultiAgentEnv):
     # Utility methods, move these eventually
     ########################################
 
-    # TODO(ev) this can be a general property of map_env or a util
     def rotate_action(self, action_vec, orientation):
         # WARNING: Note, we adopt the physics convention that \theta=0 is in the +y direction
         if orientation == 'UP':
@@ -851,7 +840,6 @@ class MapEnv(MultiAgentEnv):
     def rotate_right(self, action_vec):
         return np.dot(ACTIONS['TURN_CLOCKWISE'], action_vec)
 
-    # TODO(ev) this should be an agent property
     def update_rotation(self, action, curr_orientation):
         if action == 'TURN_COUNTERCLOCKWISE':
             if curr_orientation == 'LEFT':
@@ -872,7 +860,6 @@ class MapEnv(MultiAgentEnv):
             else:
                 return 'LEFT'
 
-    # TODO(ev) this definitely should go into utils or the general agent class
     def test_if_in_bounds(self, pos):
         """Checks if a selected cell is outside the range of the map"""
         if pos[0] < 0 or pos[0] >= self.world_map.shape[0]:
@@ -899,9 +886,6 @@ class MapEnv(MultiAgentEnv):
             self.rewards = reward
         else:
             self.rewards += reward
-        #reward=sum(rewards.values())/(self.n_agents*self.episode_limit)
-        # np.array(list(rewards.values()),dtype=float)
-
 
         self._episode_steps +=1
         terminated = [False]

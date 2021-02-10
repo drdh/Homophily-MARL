@@ -91,7 +91,6 @@ def return_view(grid, pos, row_size, col_size, pad_rgb=False):
 
 
 def pad_if_needed(left_edge, right_edge, top_edge, bot_edge, matrix, pad_rgb=False):
-    # FIXME(ev) something is broken here, I think x and y are flipped
     row_dim = matrix.shape[0]
     col_dim = matrix.shape[1]
     left_pad, right_pad, top_pad, bot_pad = 0, 0, 0, 0

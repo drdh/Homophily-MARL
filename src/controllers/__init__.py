@@ -1,5 +1,5 @@
 REGISTRY = {}
 
-from .similarity_role_controller import SimilarityRoleMAC
+from .homophily_controller import HomophilyMAC
 
-REGISTRY["similarity_role_mac"] = SimilarityRoleMAC
+REGISTRY["homophily_mac"] = HomophilyMAC

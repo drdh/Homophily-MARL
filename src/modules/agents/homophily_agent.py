@@ -1,16 +1,12 @@
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.distributions as D
-from itertools import chain
 import math
 
 
-# from utils.helper import Flatten
-
-class SimilarityRoleAgent(nn.Module):
+class HomophilyAgent(nn.Module):
     def __init__(self, input_shape, args):
-        super(SimilarityRoleAgent, self).__init__()
+        super(HomophilyAgent, self).__init__()
         self.args = args
         self.n_agents = args.n_agents
         self.n_actions = args.n_actions
@@ -19,9 +15,6 @@ class SimilarityRoleAgent(nn.Module):
         self.extra_input_shape = args.n_actions + 2 + 2 + 3  # pos,orientation,[reward,clean_num,apple_den]
 
         self.n_env_networks = self.n_agents
-        self.n_role_networks = 1
-        self.role_dim = args.role_dim
-        self.nn_hidden_size = 16
 
         if args.rgb_input:
             self.conv_to_fc = nn.Sequential(
@@ -82,31 +75,6 @@ class SimilarityRoleAgent(nn.Module):
 
         self.fc2_env_v_w = nn.Parameter(init_w(th.Tensor(1, self.n_env_networks, args.rnn_hidden_dim, 1)))
         self.fc2_env_v_b = nn.Parameter(init_b(th.Tensor(1, self.n_env_networks, 1, 1), args.rnn_hidden_dim))
-
-        # **************************************************** role ***************************************************#
-
-        # role encoder
-        self.role_enc_fc1_w = nn.Parameter(init_w(th.Tensor(1, self.n_role_networks, self.extra_input_shape, self.nn_hidden_size)))
-        self.role_enc_fc1_b = nn.Parameter(
-            init_b(th.Tensor(1, self.n_role_networks, 1, self.nn_hidden_size), input_shape))
-        self.role_enc_fc2_w = nn.Parameter(
-            init_w(th.Tensor(1, self.n_role_networks, self.nn_hidden_size, self.role_dim * 2)))
-        self.role_enc_fc2_b = nn.Parameter(
-            init_b(th.Tensor(1, self.n_role_networks, 1, self.role_dim * 2), self.nn_hidden_size))
-
-        # self.role_enc_fc = nn.Parameter(init_w(th.Tensor(1, self.n_role_networks, self.extra_input_shape, self.role_dim * 2)))
-
-        # trajectory encoder
-        self.traj_enc_fc1_w = nn.Parameter(
-            init_w(th.Tensor(1, self.n_role_networks, args.rnn_hidden_dim + self.extra_input_shape, self.nn_hidden_size)))
-        self.traj_enc_fc1_b = nn.Parameter(
-            init_b(th.Tensor(1, self.n_role_networks, 1, self.nn_hidden_size), args.rnn_hidden_dim + input_shape))
-        self.traj_enc_fc2_w = nn.Parameter(
-            init_w(th.Tensor(1, self.n_role_networks, self.nn_hidden_size, self.role_dim * 2)))
-        self.traj_enc_fc2_b = nn.Parameter(
-            init_b(th.Tensor(1, self.n_role_networks, 1, self.role_dim * 2), self.nn_hidden_size))
-
-
 
         # ************************************************* inc *******************************************************#
         self.fc1_inc_w = nn.Parameter(
@@ -177,14 +145,6 @@ class SimilarityRoleAgent(nn.Module):
                 params.append(p)
         return params
 
-    def parameters_role(self):
-        params = []
-
-        for n, p in self.named_parameters():
-            if 'enc' in n:
-                params.append(p)
-
-        return params
 
     def init_hidden(self):
         h_env = self.fc1_env_w.new_zeros(1, self.n_agents, 1, self.args.rnn_hidden_dim).detach()
@@ -222,33 +182,6 @@ class SimilarityRoleAgent(nn.Module):
         actions_env = actions_env.reshape(-1, self.n_agents, 1, self.n_actions)
 
         extra_return = {}
-        # if learning_mode:
-        #     # role inputs
-        #     agent_pos = agent_pos.reshape(-1, self.n_agents, 1, 2)
-        #     agent_orientation = agent_orientation.reshape(-1, self.n_agents, 1, 2)
-        #     reward = reward.reshape(-1, self.n_agents, 1, 1)
-        #     clean_num = clean_num.reshape(-1, self.n_agents, 1, 1)
-        #     apple_den = apple_den.reshape(-1, self.n_agents, 1, 1)
-        #
-        #     inputs_role = th.cat([actions_env,agent_pos,agent_orientation,reward,clean_num,apple_den],dim=-1) # [bs,n,1,extra]
-        #
-        #     # role encoder
-        #     enc1 = F.leaky_relu(th.matmul(inputs_role.detach(), self.role_enc_fc1_w) + self.role_enc_fc1_b)  # [bs,n,1,nn_h]
-        #     role_param = th.matmul(enc1, self.role_enc_fc2_w) + self.role_enc_fc2_b  # [bs,n,1,role*2]
-        #     # role_param = th.matmul(inputs.detach(), self.role_enc_fc) # [bs,n,1,role*2]
-        #     role_gaussian = D.Normal(role_param[:, :, :, :self.role_dim], th.exp(role_param[:, :, :, self.role_dim:]))
-        #     role = role_gaussian.rsample()  # [bs,n,1,role]
-        #
-        #     extra_return = {
-        #         'role': role.squeeze(2),  # [bs,n,role]
-        #     }
-        #
-        #     traj1 = F.leaky_relu(th.matmul(th.cat([h_in.detach(),inputs_role.detach()],dim=-1), self.traj_enc_fc1_w) + self.traj_enc_fc1_b) # [bs,n,1,nn_h]
-        #     role_infer_param = th.matmul(traj1,self.traj_enc_fc2_w) + self.traj_enc_fc2_b # [bs,n,1,role*2]
-        #     role_infer_gaussian = D.Normal(role_infer_param[:,:,:,:self.role_dim], th.exp(role_infer_param[:,:,:,self.role_dim:]))
-        #     loss_identifiable = D.kl_divergence(role_gaussian, role_infer_gaussian).mean() # TODOSSD: role_gaussian.entropy().mean()?
-        #     extra_return['loss_identifiable'] = loss_identifiable
-
 
         # inc
         x = F.leaky_relu(th.matmul(th.cat([inputs_inc,actions_env],dim=-1), self.fc1_inc_w) + self.fc1_inc_b)  # [bs,n,1,rnn]

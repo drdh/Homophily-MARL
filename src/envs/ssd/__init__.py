@@ -4,4 +4,3 @@ from __future__ import print_function
 
 from .cleanup import CleanupEnv
 from .harvest import HarvestEnv
-from .matrix import MatrixEnv

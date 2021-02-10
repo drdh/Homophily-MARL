@@ -39,7 +39,6 @@ class Agent(object):
         self.agent_id = agent_id
         self.pos = np.array(start_pos)
         self.orientation = start_orientation
-        # TODO(ev) change grid to env, this name is not very informative
         self.grid = grid
         self.row_size = row_size
         self.col_size = col_size
@@ -137,7 +136,6 @@ class Agent(object):
         if self.grid[new_row, new_col] == '@':
             temp_pos = self.get_pos()
         self.set_pos(temp_pos)
-        # TODO(ev) list array consistency
         return self.get_pos(), np.array(old_pos)
 
     def update_agent_rot(self, new_rot):
@@ -189,7 +187,7 @@ class HarvestAgent(Agent):
 
     def fire_beam(self, char):
         if char == 'F':
-            self.reward_this_turn -= 1 #0 # TODOSSD: remove fire beam
+            self.reward_this_turn -= 1 #0
 
     def get_done(self):
         return False

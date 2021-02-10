@@ -1,5 +1,5 @@
-from .similarity_role_learner import SimilarityRoleLearner
+from .homophily_learner import HomophilyLearner
 
 REGISTRY = {}
 
-REGISTRY["similarity_role_learner"] =SimilarityRoleLearner
+REGISTRY["homophily_learner"] =HomophilyLearner

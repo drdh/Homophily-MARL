@@ -68,14 +68,11 @@ class EpisodeRunner:
 
             # Pass the entire batch of experiences up till now to the agents
             # Receive the actions for each agent at this timestep in a batch of size 1
-            if 'similarity' in self.args.name:
+            if 'homophily' in self.args.name:
                 actions = self.mac.select_actions_env(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
-            elif self.args.name == 'adaptive':
-                actions, actions_prob, actions_inc, actions_inc_prob = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
             else:
                 actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env,test_mode=test_mode)
 
-            # TODOSSD: maybe write a new runner.
             actions_env = actions % self.args.n_actions
             reward, terminated, env_info = self.env.step(actions_env[0])
             episode_return += reward
@@ -87,19 +84,12 @@ class EpisodeRunner:
                 "clean_num": [(env_info["clean_num"],)],
                 "apple_den": [(env_info["apple_den"],)],
             }
-            if 'similarity' in self.args.name:
+            if 'homophily' in self.args.name:
                 self.batch.update(post_transition_data, ts=self.t)
                 actions_inc = self.mac.select_actions_inc(actions, self.batch, t_ep=self.t, t_env=self.t_env,test_mode=test_mode, agent_pos_replay = self.env.get_agent_pos())
                 post_transition_data = {
                     "actions_inc": actions_inc,
                 }
-                self.batch.update(post_transition_data, ts=self.t)
-            elif self.args.name == 'adaptive':
-                post_transition_data.update({
-                    "actions_prob": actions_prob,
-                    "actions_inc" : actions_inc,
-                    "actions_inc_prob": actions_inc_prob,
-                })
                 self.batch.update(post_transition_data, ts=self.t)
             else:
                 self.batch.update(post_transition_data, ts=self.t)
@@ -116,19 +106,12 @@ class EpisodeRunner:
         self.batch.update(last_data, ts=self.t)
 
         # Select actions in the last stored state
-        if 'similarity' in self.args.name:
+        if 'homophily' in self.args.name:
             actions = self.mac.select_actions_env(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
             actions_inc = self.mac.select_actions_inc(actions, self.batch, t_ep=self.t, t_env=self.t_env,test_mode=test_mode,agent_pos_replay = self.env.get_agent_pos())
 
             self.batch.update({
                 "actions_inc": actions_inc,
-            }, ts=self.t)
-        elif self.args.name == 'adaptive':
-            actions, actions_prob, actions_inc, actions_inc_prob = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env,test_mode=test_mode)
-            self.batch.update({
-                "actions_prob": actions_prob,
-                "actions_inc": actions_inc,
-                "actions_inc_prob": actions_inc_prob,
             }, ts=self.t)
         else:
             actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env,test_mode=test_mode)

@@ -1,5 +1,5 @@
 REGISTRY = {}
 
-from .similarity_role_agent import SimilarityRoleAgent
+from .homophily_agent import HomophilyAgent
 
-REGISTRY["similarity_role"] = SimilarityRoleAgent
+REGISTRY["homophily"] = HomophilyAgent

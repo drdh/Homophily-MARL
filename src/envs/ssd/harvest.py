@@ -2,7 +2,7 @@ import numpy as np
 import torch as th
 
 from .agent import HarvestAgent  # HARVEST_VIEW_SIZE
-from .constants import HARVEST_MAP, HARVEST_EASY_MAP, HARVEST_MEDIUM_MAP, HARVEST_WALL_MAP, HARVEST_PART_MAP, HARVEST_FIVE_MAP, HARVEST_HALF_MAP, HARVEST_LITTLE_MAP
+from .constants import HARVEST_N10_MAP
 from .map_env import MapEnv, ACTIONS
 
 APPLE_RADIUS = 2
@@ -15,31 +15,10 @@ SPAWN_PROB = [0, 0.005, 0.02, 0.05] # default
 
 class HarvestEnv(MapEnv):
 
-    def __init__(self, ascii_map=HARVEST_MAP, num_agents=1, render=False, seed=None, episode_limit=100,is_replay=False, view_size=7, map="default", extra_args=None):
+    def __init__(self, ascii_map=HARVEST_N10_MAP, num_agents=1, render=False, seed=None, episode_limit=100,is_replay=False, view_size=7, map="default", extra_args=None):
 
-        if map=="default":
-            ascii_map=HARVEST_MAP
-            self.SPAWN_PROB = SPAWN_PROB
-        elif map=="default5":
-            ascii_map=HARVEST_FIVE_MAP
-            self.SPAWN_PROB = SPAWN_PROB
-        elif map=="easy":
-            ascii_map=HARVEST_EASY_MAP
-            self.SPAWN_PROB = SPAWN_PROB
-        elif map=="medium":
-            ascii_map=HARVEST_MEDIUM_MAP
-            self.SPAWN_PROB = SPAWN_PROB
-        elif map=="wall":
-            ascii_map = HARVEST_WALL_MAP
-            self.SPAWN_PROB = SPAWN_PROB
-        elif map=="little":
-            ascii_map = HARVEST_LITTLE_MAP
-            self.SPAWN_PROB = [0, 0.05, 0.08, 0.1]
-        elif map=="part":
-            ascii_map = HARVEST_PART_MAP
-            self.SPAWN_PROB = [0, 0.05, 0.08, 0.1]
-        elif map=="half":
-            ascii_map = HARVEST_HALF_MAP
+        if map=="default10":
+            ascii_map = HARVEST_N10_MAP
             self.SPAWN_PROB = [0, 0.05, 0.08, 0.1]
 
         print("map difficulty: {}".format(map))

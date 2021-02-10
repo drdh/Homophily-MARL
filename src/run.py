@@ -105,20 +105,10 @@ def run_sequential(args, logger):
         "apple_den": {"vshape": (args.n_agents,)},
         "agent_pos": {"vshape": (args.n_agents, 2)},
         "agent_orientation": {"vshape": (args.n_agents, 2)},
-
-        # "manager_outs": {"vshape": (args.manager_action_space,) if args.centralized_manager
-        #                  else (args.n_agents, args.manager_action_space)},
-        # "assignments": {"vshape": (args.n_agents,args.manager_action_space)},
     }
-    if 'similarity' in args.name:
+    if 'homophily' in args.name:
         scheme.update({
             "actions_inc": {"vshape": (args.n_agents, 1), "group": "agents", "dtype": th.long},  # (n,n,1)
-        })
-    elif args.name == 'adaptive':
-        scheme.update({
-            "actions_prob": {"vshape" : (1,), "group": "agents",},  #  (n,1)
-            "actions_inc": {"vshape": (args.n_agents,1), "group": "agents", "dtype": th.long}, # (n,n,1)
-            "actions_inc_prob": {"vshape": (args.n_agents,1), "group": "agents", }, # (n,n,1)
         })
 
     groups = {
@@ -140,11 +130,6 @@ def run_sequential(args, logger):
 
     # Learner
     learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args)
-    # if args.twin_q:
-    #     twin_mac = mac_REGISTRY[args.mac](buffer.scheme, groups, args)
-    #     learner = le_REGISTRY[args.learner](mac, twin_mac, buffer.scheme, logger, args)
-    # else:
-    #     learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args)
 
     if args.use_cuda:
         learner.cuda()
@@ -197,8 +182,6 @@ def run_sequential(args, logger):
 
         # Run for a whole episode at a time
         episode_batch = runner.run(test_mode=False)
-        # if episode_batch["reward"].max()>0: # TODOSSD: test
-        #     buffer.insert_episode_batch(episode_batch)
         buffer.insert_episode_batch(episode_batch)
 
         if buffer.can_sample(args.batch_size):

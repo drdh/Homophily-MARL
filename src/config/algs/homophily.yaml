@@ -20,11 +20,11 @@ runner: "episode"
 # use the actor critic to train
 agent_output_type: "q" # pi_logits,
 
-name: "similarity_role"
-learner: "similarity_role_learner"
+name: "homophily"
+learner: "homophily_learner"
 mixer:  # Mixer becomes None
-mac: "similarity_role_mac"
-agent: "similarity_role"
+mac: "homophily_mac"
+agent: "homophily"
 double_q: True
 
 # update the target network every {} episodes
@@ -32,28 +32,19 @@ target_update_interval: 20 # episodes
 
 gamma_env: 0.95
 gamma_inc: 0.995
-#lr: 0.001 # 0.0001
 lr_env: 0.0001
 lr_inc: 0.0001
-lr_role: 0.0001
 
-truncated_episode: False
 n_inc_actions: 3 # 0,1,2 = NO, +, -
-disable_positive_inc_action: False
-disable_negative_inc_action: False
 consider_others_inc: False
 
 # algorithms
-parameter_sharing: False
-parameter_sharing_inc: False
 incentive: True
 incentive_ratio: 1.0 # (1/2n) (no more than (2n-2)^(-1) ) effect_ratio = self.args.incentive_ratio | effect_ratio = th.relu(rewards.mean()) * self.args.incentive_ratio
 incentive_cost:  0.1 # (no more than 1) cost_ratio = effect_ratio * self.args.incentive_cost
 
 sim_loss_weight: 0.1
 sim_horizon: 10
-#identifiable_loss_weight: 0.0001
-role_dim: 3
 
 use_cuda: True
 save_model: True # Save the models to disk

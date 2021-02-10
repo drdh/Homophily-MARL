@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 
 
 # This multi-agent controller shares parameters between agents
-class SimilarityRoleMAC(nn.Module):
+class HomophilyMAC(nn.Module):
     def __init__(self, scheme, groups, args):
-        super(SimilarityRoleMAC, self).__init__()
+        super(HomophilyMAC, self).__init__()
         self.n_agents = args.n_agents
         self.args = args
         input_shape = self._get_input_shape(scheme)
@@ -25,11 +25,6 @@ class SimilarityRoleMAC(nn.Module):
         self.extra_return_env = None
         self.extra_return_inc = None
 
-        self.color = {
-            0: 'black',
-            1: 'green',
-            2: 'red',
-        }
         self.inc_mask_actions = (1 - th.eye(self.n_agents)).reshape(1, self.n_agents, self.n_agents, 1).to(self.args.device)
 
     def select_actions_env(self, ep_batch, t_ep, t_env, bs=slice(None), test_mode=False):
@@ -47,22 +42,13 @@ class SimilarityRoleMAC(nn.Module):
         q_inc = self.forward_inc(ep_batch, t_ep, chosen_actions, test_mode=test_mode)
         rewards = ep_batch["reward"][:,t_ep] # [bs,n]
         masks = th.ones_like(q_inc[bs]) # [bs,n,n,a_inc]
-        if self.args.disable_positive_inc_action:
-            masks[:,:,:,1] = 0
-        elif self.args.disable_negative_inc_action:
-            masks[:,:,:,2] = 0
         chosen_actions_inc = self.action_selector.select_action(q_inc[bs], masks, t_env,test_mode=test_mode)
         chosen_actions_inc = chosen_actions_inc.unsqueeze(-1) * self.inc_mask_actions # # [bs,n,n,1]
 
         if self.args.save_replay == True:
             if t_ep>0:
-                # agent_pos = ep_batch["agent_pos"][0, t_ep]
-                # point = agent_pos.cpu().detach().numpy()
-                # data = np.array(point)
                 data = agent_pos_replay
                 plt.clf()  #
-                # plt.scatter(data[:, 1], data[:, 0], c=[self.color[i] for i in chosen_actions_inc.squeeze(-1)[0]])
-                # plt.clf();plt.arrow(x=0,y=0,dx=0.5,dy=0.5,color='r',alpha=0.5,width=0.01);plt.show()
 
                 incentives = chosen_actions_inc.squeeze(0).squeeze(-1)  # [n,n]
                 from_dev = 0.2
@@ -76,20 +62,11 @@ class SimilarityRoleMAC(nn.Module):
                                       dx=data[j, 1] - data[i, 1] + to_dev,
                                       dy=data[j, 0] - data[i, 0] + to_dev,
                                       alpha=0.8, width=0.1, head_width=0.8, color=color)
-
-                print(t_ep)
-                print("action_inc:\n", incentives.to("cpu").numpy())
-                print("action:\n", chosen_actions.squeeze(-1).to('cpu').numpy())
-                print("clean_num:\n", ep_batch["clean_num"][:, t_ep].to("cpu").numpy())
-                print("apple_num:\n", ep_batch["reward"][:, t_ep].to("cpu").numpy())
-            # self.chosen_actions_inc_replay = chosen_actions_inc
         return chosen_actions_inc
                 # [bs,n,n,1]
 
     def forward_env(self, ep_batch, t, test_mode=False, learning_mode=False):
         self.agent_inputs = self._build_inputs(ep_batch, t)  # [n,-1]
-        avail_actions = ep_batch["avail_actions"][:, t]
-        actions_env = ep_batch["actions_onehot"][:, t - 1] # [bs,n,dim]
         q_env, self.h_env, self.extra_return_env = self.agent.forward_env(self.agent_inputs, self.h_env, learning_mode)  # [bs,n_a]
         return q_env.view(ep_batch.batch_size, self.n_agents, -1)
 
@@ -131,8 +108,6 @@ class SimilarityRoleMAC(nn.Module):
     def parameters_inc(self):
         return self.agent.parameters_inc()
 
-    def parameters_role(self):
-        return self.agent.parameters_role()
 
     def load_state(self, other_mac):
         self.agent.load_state_dict(other_mac.agent.state_dict())
@@ -180,8 +155,8 @@ class SimilarityRoleMAC(nn.Module):
             if t == 0:
                 inputs.append(th.zeros_like(batch["reward"][:, t]))
             else:
-                actions_inc = batch["actions_inc"][:, t - 1]  # [bs,n,n,1] # TODOSSD
-                actions_inc_masked = actions_inc * self.inc_mask_actions # * batch["reward"][:,t].unsqueeze(-1).unsqueeze(-1)
+                actions_inc = batch["actions_inc"][:, t - 1]  # [bs,n,n,1]
+                actions_inc_masked = actions_inc * self.inc_mask_actions
                 receive_value = th.stack([
                     th.sum(actions_inc_masked[:, :, i] == 1, dim=(1, 2)) \
                     - th.sum(actions_inc_masked[:, :, i] == 2, dim=(1, 2))
@@ -221,7 +196,7 @@ class SimilarityRoleMAC(nn.Module):
             input_shape += 1
         if self.args.obs_inc_reward:
             input_shape += 1
-        if self.args.obs_others_last_action: # TODOSSD: mean-field
+        if self.args.obs_others_last_action:
             input_shape += scheme["actions_onehot"]["vshape"][0] * self.n_agents
         if self.args.obs_distance:
             input_shape += self.n_agents
