@@ -43,7 +43,7 @@ incentive: True
 incentive_ratio: 1.0
 incentive_cost:  0.1
 
-sim_loss_weight: 0.1
+sim_loss_weight: 0.01
 sim_horizon: 10
 
 use_cuda: True
