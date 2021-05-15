@@ -46,6 +46,12 @@ class CleanupEnv(MapEnv):
             self.thresholdRestoration = 0.0
             self.wasteSpawnProbability = 0.5
             self.appleRespawnProbability = 0.05
+        else:
+            ascii_map = CLEANUP_N5_MAP
+            self.thresholdDepletion = 0.99
+            self.thresholdRestoration = 0.0
+            self.wasteSpawnProbability = 0.5
+            self.appleRespawnProbability = 0.05
 
         print("map difficulty: {}".format(map))
         for row in ascii_map:

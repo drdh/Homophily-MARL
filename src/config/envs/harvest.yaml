@@ -1,12 +1,12 @@
 env: harvest
 
 env_args:
-  num_agents: 5
+  num_agents: 10
   render: False
   episode_limit: 100
   is_replay: False
   view_size: 15
-  map: "part" # easy, default
+  map: "default10"
   extra_args:
     random_spawn_point: False # spawn point & rotation
     random_spawn_rotation: 0 # None(empty): random, # 0:up, 1:down, 2:left, 3:right

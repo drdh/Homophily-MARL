@@ -40,8 +40,8 @@ consider_others_inc: False
 
 # algorithms
 incentive: True
-incentive_ratio: 1.0 # (1/2n) (no more than (2n-2)^(-1) ) effect_ratio = self.args.incentive_ratio | effect_ratio = th.relu(rewards.mean()) * self.args.incentive_ratio
-incentive_cost:  0.1 # (no more than 1) cost_ratio = effect_ratio * self.args.incentive_cost
+incentive_ratio: 1.0
+incentive_cost:  0.1
 
 sim_loss_weight: 0.1
 sim_horizon: 10

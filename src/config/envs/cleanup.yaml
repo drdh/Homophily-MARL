@@ -6,7 +6,7 @@ env_args:
   episode_limit: 100 # 1000
   is_replay: False
   view_size: 15
-  map: "default10" # easy, default(n=5,T=100,size=15), default5(n=5,T=100,size=15),default10(n=10,T=100,size=15), lio3(n=3,T=50,size=7), lio2(n=2,T=50,size=7),
+  map: "default10"
   extra_args:
     random_spawn_point: False # spawn point & rotation
     random_spawn_rotation: 0 # None(empty): random, # 0:up, 1:down, 2:left, 3:right
