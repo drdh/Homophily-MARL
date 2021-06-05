@@ -1,7 +1,6 @@
 # A Closer Look at Cooperation Emergence via Multi-Agent RL
 
-Our method is built on the combination of [PyMARL](https://github.com/oxwhirl/pymarl) and Sequential Social Dilemma Games ([SSDG](https://github.com/eugenevinitsky/sequential_social_dilemma_games)).
-We use the implementation of Cleanup and Harvest from SSDG, and then the algorithm is based on the implementation of independent Q-learning from PyMARL.
+Our method is built on [PyMARL](https://github.com/oxwhirl/pymarl) and Sequential Social Dilemma Games ([SSDG](https://github.com/eugenevinitsky/sequential_social_dilemma_games)). We use the implementation of Cleanup and Harvest Game from the SSDG repo. The implementation of our algorithm is based on independent Q-learning from the PyMARL repo.
 
 
 ## Installation instructions
@@ -26,15 +25,15 @@ env_args.num_agents=10
 use_tensorboard=True 
 ```
 
-for other Cleanup maps, set `env_args.map=default5` and `env_args.num_agents=5` or 
-set `env_args.map=default3` and `env_args.num_agents=3`.
-for Harvest maps, set `--env-config=harvest`.
+For Cleanup with 5 agents, set `env_args.map=default5` and `env_args.num_agents=5`.
+For Cleanup with 3 agents, set `env_args.map=default3` and `env_args.num_agents=3`.
+For Harvest, set `--env-config=harvest`.
 
-The config files act as defaults for an algorithm or environment. 
+The config files contain default settings for an algorithm or environment. 
 
 They are all located in `src/config`.
-`--config` refers to the config files in `src/config/algs`
-`--env-config` refers to the config files in `src/config/envs`
+`--config` refers to the config files in `src/config/algs`.
+`--env-config` refers to the config files in `src/config/envs`.
 
 All results will be stored in the `results` folder.
 
@@ -42,7 +41,7 @@ All results will be stored in the `results` folder.
 
 ### Saving models
 
-You can save the learnt models to disk by setting `save_model = True`, which is set to `True` by default. The frequency of saving models can be adjusted using `save_model_interval` configuration. Models will be saved in the result directory, under the folder called *models*. The directory corresponding each run will contain models saved throughout the experiment, each within a folder corresponding to the number of timesteps passed since starting the learning process.
+You can save the learnt models to disk by setting `save_model = True`, which is `False` by default. The frequency of saving models can be adjusted using `save_model_interval`. Models will be saved in the result directory, under the folder called *models*. The directory corresponding to each run will contain models saved throughout the experiment, each within a folder corresponding to the number of timesteps passed since starting the learning process.
 
 ### Loading models
 
@@ -50,7 +49,7 @@ Learnt models can be loaded using the `checkpoint_path` parameter, after which t
 
 ## Watching replays
 
-`save_replay` option allows saving replays of models which are loaded using `checkpoint_path`. Once the model is successfully loaded, `test_nepisode` number of episodes are run on the test mode. 
+`save_replay` option allows saving replays of models which are loaded from `checkpoint_path`. Once the model is successfully loaded, `test_nepisode` number of episodes are run in the test mode. 
 
 ```bash
 python3 src/main.py 
