@@ -5,7 +5,7 @@ env_args:
   render: False
   episode_limit: 100 # 1000
   is_replay: False
-  view_size: 15
+  view_size: 7
   map: "default10"
   extra_args:
     random_spawn_point: False # spawn point & rotation
