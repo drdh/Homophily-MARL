@@ -32,8 +32,8 @@ target_update_interval: 20 # episodes
 
 gamma_env: 0.95
 gamma_inc: 0.995
-lr_env: 0.0001
-lr_inc: 0.0001
+lr_env: 0.001
+lr_inc: 0.001
 
 n_inc_actions: 3 # 0,1,2 = NO, +, -
 consider_others_inc: False

@@ -21,8 +21,9 @@ class HomophilyLearner:
         self.inc_mask = (1 - th.eye(self.n_agents)).reshape(1, 1, self.n_agents, self.n_agents).to(self.device)
         self.inc_mask_actions = (1 - th.eye(self.n_agents)).reshape(1, 1, self.n_agents, self.n_agents, 1).to(self.device)
 
-        self.env_sim_mask = (1 - th.eye(self.n_agents)).reshape(1,1,self.n_agents,self.n_agents,1).to(self.device)
-        self.inc_sim_mask = (1 - th.eye(self.n_agents)).reshape(1,1,self.n_agents,1,self.n_agents).to(self.device)
+        self.env_sim_mask = (1 - th.eye(self.n_agents)).reshape(1, 1, self.n_agents, self.n_agents, 1).to(self.device)
+        self.inc_sim_mask = (1 - th.eye(self.n_agents)).reshape(1, 1, self.n_agents, 1, self.n_agents).to(self.device)
+        self.oth_sim_mask = (1 - th.eye(self.n_agents)).reshape(1, 1, 1, self.n_agents, self.n_agents).to(self.device)
         # [bs,t-1,n,n,n] # of i, k choose, to j, Q
 
 
@@ -209,9 +210,11 @@ class HomophilyLearner:
         q_of_i_to_j = q_inc_for_sim[:, :-1].unsqueeze(3).repeat(1, 1, 1, self.n_agents, 1, 1)  # [bs,t-1,n,1,n,a_inc]==>[bs,t-1,n,(n),n,a_inc]
         a_of_k_to_j = actions_inc.unsqueeze(2).repeat(1, 1, self.n_agents, 1, 1,1).detach()  # [bs,t-1,1,n,n,1]==>[bs,t-1,(n),n,n,1]
         q_of_i_chosen_by_k_to_j = th.gather(q_of_i_to_j, dim=-1, index=a_of_k_to_j).squeeze( -1)  # [bs,t-1,n,n,n] # of i, k choose, to j, Q
-        sim_loss = - th.log(q_of_i_chosen_by_k_to_j) * th.relu(similarity.detach()) * self.env_sim_mask * self.inc_sim_mask
-        sim_loss = sim_loss.mean()
 
+        sim_loss_mask = th.relu(similarity.detach()) * self.env_sim_mask * self.inc_sim_mask * self.oth_sim_mask
+        sim_loss = - th.log(q_of_i_chosen_by_k_to_j)
+        sim_loss = th.clamp_min(sim_loss, self.args.sim_threshold) * sim_loss_mask
+        sim_loss = sim_loss.sum() / (1 + sim_loss_mask.sum())
 
         # ************************************************ step ********************************************************
         self.optimiser_inc.zero_grad()
