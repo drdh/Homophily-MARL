@@ -20,12 +20,12 @@ python3 src/main.py
 --config=homophily 
 --env-config=cleanup 
 with 
-env_args.map=default10
-env_args.num_agents=10
+env_args.map=default5
+env_args.num_agents=5
 use_tensorboard=True 
 ```
 
-For Cleanup with 5 agents, set `env_args.map=default5` and `env_args.num_agents=5`.
+For Cleanup with 10 agents, set `env_args.map=default10` and `env_args.num_agents=10`.
 For Cleanup with 3 agents, set `env_args.map=default3` and `env_args.num_agents=3`.
 For Harvest, set `--env-config=harvest`.
 
@@ -56,8 +56,8 @@ python3 src/main.py
 --config=homophily 
 --env-config=cleanup 
 with 
-env_args.map=default10
-env_args.num_agents=10
+env_args.map=default5
+env_args.num_agents=5
 use_tensorboard=False 
 save_replay=True 
 env_args.is_replay=True 
