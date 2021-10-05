@@ -1,4 +1,4 @@
-# A Closer Look at Cooperation Emergence via Multi-Agent RL
+# Learning Homophilic Incentives in Sequential Social Dilemmas
 
 Our method is built on [PyMARL](https://github.com/oxwhirl/pymarl) and Sequential Social Dilemma Games ([SSDG](https://github.com/eugenevinitsky/sequential_social_dilemma_games)). We use the implementation of Cleanup and Harvest Game from the SSDG repo. The implementation of our algorithm is based on independent Q-learning from the PyMARL repo.
 
